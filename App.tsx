@@ -5,7 +5,7 @@
  * Riwayat Perubahan & Arsitektur:
  * 1. REPEL DOTS: Background dots now act as positive magnets, repelling the cursor.
  * 2. LIQUID TYPOGRAPHY: Interactive letters with spring physics.
- * 3. CRISPY SFX: Added mechanical keyboard hover sounds for tactile feedback.
+ * 3. MINIMALIST SFX: Switched to a "Soft UI Tick" for a more elegant, high-end feel.
  * 4. PERFORMANCE: Optimized grid density and character mapping for 60fps experience.
  */
 
@@ -22,8 +22,8 @@ import { MagneticButton } from './components/MagneticButton';
 type LoadingState = 'welcome' | 'box' | 'logo' | 'complete';
 
 const AUDIO_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
-// Crispy keyboard click SFX URL
-const HOVER_SFX_URL = "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3";
+// High-end Subtle UI Tick SFX
+const HOVER_SFX_URL = "https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3";
 
 interface Message {
   id: string;
@@ -51,19 +51,15 @@ const App: React.FC = () => {
 
   useEffect(() => {
     hoverSoundRef.current = new Audio(HOVER_SFX_URL);
-    hoverSoundRef.current.volume = 0.15;
-    // Preload sound
+    hoverSoundRef.current.volume = 0.1; // Lower volume for elegance
     hoverSoundRef.current.load();
   }, []);
 
   const playHoverSound = useCallback(() => {
     if (!hoverSoundRef.current) return;
-    // Clone and play to allow overlapping sounds (crispy effect)
     const sound = hoverSoundRef.current.cloneNode() as HTMLAudioElement;
-    sound.volume = 0.15;
-    sound.play().catch(() => {
-      // Ignore autoplay restriction errors - they vanish after first click
-    });
+    sound.volume = 0.1;
+    sound.play().catch(() => {});
   }, []);
 
   // --- CURSOR LOGIC ---
@@ -155,7 +151,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Improved liquid character rendering
   const name = "Adhikna Enggar.";
   const renderInteractiveName = () => {
     return name.split("").map((char, index) => (
@@ -186,7 +181,6 @@ const App: React.FC = () => {
   return (
     <div className="relative min-h-screen bg-[#f8f8f8] text-[#101010] selection:bg-[#101010] selection:text-white antialiased overflow-hidden custom-cursor-none">
       
-      {/* CUSTOM CURSOR (Spring Smoothed) */}
       <div className="hidden md:block pointer-events-none fixed inset-0 z-[999]">
         <motion.div
           style={{ x: cursorX, y: cursorY }}
@@ -256,7 +250,6 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          {/* SIDE CHAT TRIGGER */}
           <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: isChatOpen ? 150 : 0 }} transition={{ duration: 0.8, delay: 2 }} className="fixed right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center z-[60] pointer-events-auto cursor-pointer" onClick={() => setIsChatOpen(true)} onMouseEnter={playHoverSound}>
             <div className="bg-[#101010] px-6 py-10 border-b-[4px] border-white/10 shadow-2xl transition-all duration-500 hover:pr-14">
                <div className="flex flex-col gap-1 items-center">
