@@ -3,9 +3,9 @@
  * PROJECT DOCUMENTATION - ADHIKNA ENGGAR PORTFOLIO
  * -----------------------------------------------
  * Riwayat Perubahan & Arsitektur:
- * 1. REPEL DOTS: Background dots now act as positive magnets, repelling the cursor for a fluid feel.
- * 2. LIQUID TYPOGRAPHY: Letters in the name "Adhikna Enggar." are now interactive and bouncy.
- * 3. SPRING PHYSICS: Used useSpring for cursor and name animations to match Aziz Khaldi's quality.
+ * 1. REPEL DOTS: Background dots now act as positive magnets, repelling the cursor.
+ * 2. LIQUID TYPOGRAPHY: Interactive letters with spring physics.
+ * 3. CRISPY SFX: Added mechanical keyboard hover sounds for tactile feedback.
  * 4. PERFORMANCE: Optimized grid density and character mapping for 60fps experience.
  */
 
@@ -22,6 +22,8 @@ import { MagneticButton } from './components/MagneticButton';
 type LoadingState = 'welcome' | 'box' | 'logo' | 'complete';
 
 const AUDIO_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3";
+// Crispy keyboard click SFX URL
+const HOVER_SFX_URL = "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3";
 
 interface Message {
   id: string;
@@ -43,6 +45,26 @@ const App: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // SFX Logic
+  const hoverSoundRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    hoverSoundRef.current = new Audio(HOVER_SFX_URL);
+    hoverSoundRef.current.volume = 0.15;
+    // Preload sound
+    hoverSoundRef.current.load();
+  }, []);
+
+  const playHoverSound = useCallback(() => {
+    if (!hoverSoundRef.current) return;
+    // Clone and play to allow overlapping sounds (crispy effect)
+    const sound = hoverSoundRef.current.cloneNode() as HTMLAudioElement;
+    sound.volume = 0.15;
+    sound.play().catch(() => {
+      // Ignore autoplay restriction errors - they vanish after first click
+    });
+  }, []);
 
   // --- CURSOR LOGIC ---
   const [cursorVariant, setCursorVariant] = useState<'default' | 'hover'>('default');
@@ -139,6 +161,7 @@ const App: React.FC = () => {
     return name.split("").map((char, index) => (
       <motion.span
         key={index}
+        onMouseEnter={playHoverSound}
         className="inline-block hover-char cursor-none"
         initial={{ y: 80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -204,7 +227,7 @@ const App: React.FC = () => {
       </AnimatePresence>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: loadingPhase === 'complete' ? 1 : 0 }} transition={{ duration: 1 }}>
-        {loadingPhase === 'complete' && <Navbar />}
+        {loadingPhase === 'complete' && <Navbar onHover={playHoverSound} />}
 
         <main className="relative z-10 min-h-screen flex flex-col items-center justify-center px-6 sm:px-10 md:px-20 pt-10">
           <BackgroundDots />
@@ -222,7 +245,7 @@ const App: React.FC = () => {
             </div>
 
             <div className="flex pointer-events-auto justify-center md:justify-start px-2 mt-4 md:mt-0">
-              <MagneticButton>
+              <MagneticButton onMouseEnter={playHoverSound}>
                 <div className="flex items-stretch group h-14 md:h-16 shadow-sm rounded-sm border border-[#101010]/5 overflow-hidden transition-all duration-500 hover:shadow-xl hover:shadow-black/5">
                   <div className="bg-[#101010] text-white px-8 md:px-10 flex items-center text-lg md:text-xl font-medium tracking-tight">Contact</div>
                   <div className="bg-[#101010] px-4 md:px-5 flex items-center border-l border-white/10 group-hover:bg-[#2c2c2c] transition-colors">
@@ -234,7 +257,7 @@ const App: React.FC = () => {
           </div>
 
           {/* SIDE CHAT TRIGGER */}
-          <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: isChatOpen ? 150 : 0 }} transition={{ duration: 0.8, delay: 2 }} className="fixed right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center z-[60] pointer-events-auto cursor-pointer" onClick={() => setIsChatOpen(true)}>
+          <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: isChatOpen ? 150 : 0 }} transition={{ duration: 0.8, delay: 2 }} className="fixed right-0 top-1/2 -translate-y-1/2 hidden md:flex items-center z-[60] pointer-events-auto cursor-pointer" onClick={() => setIsChatOpen(true)} onMouseEnter={playHoverSound}>
             <div className="bg-[#101010] px-6 py-10 border-b-[4px] border-white/10 shadow-2xl transition-all duration-500 hover:pr-14">
                <div className="flex flex-col gap-1 items-center">
                   <span className="text-xl font-bold tracking-[0.2em] uppercase writing-vertical-lr transform rotate-180 text-white">Let's Talk</span>
@@ -254,7 +277,7 @@ const App: React.FC = () => {
                         <div className="w-8 h-8 bg-[#101010] rounded-lg flex items-center justify-center"><Sparkles className="w-4 h-4 text-white" /></div>
                         <h3 className="text-base font-bold text-[#101010]">Adhikna AI</h3>
                       </div>
-                      <button onClick={() => setIsChatOpen(false)} className="w-8 h-8 hover:bg-black/5 rounded-full flex items-center justify-center"><X className="w-4 h-4" /></button>
+                      <button onClick={() => setIsChatOpen(false)} onMouseEnter={playHoverSound} className="w-8 h-8 hover:bg-black/5 rounded-full flex items-center justify-center"><X className="w-4 h-4" /></button>
                     </div>
                     <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide">
                       {messages.map((msg) => (
@@ -268,7 +291,7 @@ const App: React.FC = () => {
                     <div className="p-6">
                       <div className="relative flex items-center">
                         <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()} placeholder="Tanyakan apapun..." className="w-full bg-white border border-black/5 rounded-xl py-4 px-5 outline-none text-sm" />
-                        <button onClick={handleSendMessage} className="absolute right-2 w-10 h-10 bg-[#101010] rounded-lg text-white flex items-center justify-center transition-transform active:scale-90"><Send className="w-4 h-4" /></button>
+                        <button onClick={handleSendMessage} onMouseEnter={playHoverSound} className="absolute right-2 w-10 h-10 bg-[#101010] rounded-lg text-white flex items-center justify-center transition-transform active:scale-90"><Send className="w-4 h-4" /></button>
                       </div>
                     </div>
                   </div>
@@ -281,7 +304,7 @@ const App: React.FC = () => {
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 2.2 }} className="text-xl md:text-3xl font-medium text-[#2c2c2c]">Explore</motion.div>
             <div className="flex-1 mx-6 md:mx-20 h-[1px] bg-[#2c2c2c] relative hidden sm:block opacity-20" />
             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 2.2 }} className="flex items-center gap-4 md:gap-6 pointer-events-auto">
-              <MagneticButton onClick={toggleMusic}>
+              <MagneticButton onClick={toggleMusic} onMouseEnter={playHoverSound}>
                 <div className="flex items-center gap-3 bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-[#2c2c2c]/10 hover:border-[#2c2c2c]/30 transition-all">
                   <div className="flex items-end gap-[2px] h-3 w-4">
                     {[1, 2, 3, 4].map((i) => (
@@ -292,8 +315,8 @@ const App: React.FC = () => {
                 </div>
               </MagneticButton>
               <div className="flex gap-4 items-center">
-                <MagneticButton><Linkedin className="w-5 h-5 md:w-6 md:h-6 text-[#2c2c2c] hover:text-[#101010]" /></MagneticButton>
-                <MagneticButton><Mail className="w-5 h-5 md:w-6 md:h-6 text-[#2c2c2c] hover:text-[#101010]" /></MagneticButton>
+                <MagneticButton onMouseEnter={playHoverSound}><Linkedin className="w-5 h-5 md:w-6 md:h-6 text-[#2c2c2c] hover:text-[#101010]" /></MagneticButton>
+                <MagneticButton onMouseEnter={playHoverSound}><Mail className="w-5 h-5 md:w-6 md:h-6 text-[#2c2c2c] hover:text-[#101010]" /></MagneticButton>
               </div>
             </motion.div>
           </div>

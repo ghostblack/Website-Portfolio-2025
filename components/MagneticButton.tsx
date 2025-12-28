@@ -5,11 +5,16 @@ import { motion } from 'framer-motion';
 interface MagneticButtonProps {
   children: React.ReactNode;
   className?: string;
-  /* Fix: Update onClick signature to accept React.MouseEvent to support handlers that require the event object (e.g., for stopPropagation in App.tsx) */
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseEnter?: () => void;
 }
 
-export const MagneticButton: React.FC<MagneticButtonProps> = ({ children, className, onClick }) => {
+export const MagneticButton: React.FC<MagneticButtonProps> = ({ 
+  children, 
+  className, 
+  onClick,
+  onMouseEnter 
+}) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const ref = useRef<HTMLDivElement>(null);
 
@@ -31,6 +36,9 @@ export const MagneticButton: React.FC<MagneticButtonProps> = ({ children, classN
       ref={ref}
       className={`relative inline-block cursor-pointer ${className}`}
       onMouseMove={handleMouseMove}
+      onMouseEnter={() => {
+        onMouseEnter?.();
+      }}
       onMouseLeave={handleMouseLeave}
       animate={{ x: position.x, y: position.y }}
       transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}

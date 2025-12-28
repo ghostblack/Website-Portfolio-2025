@@ -3,7 +3,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MagneticButton } from './MagneticButton';
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  onHover?: () => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ onHover }) => {
   const navItems = ['Home', 'About', 'Works'];
 
   return (
@@ -14,7 +18,7 @@ export const Navbar: React.FC = () => {
       className="fixed top-0 left-0 right-0 z-50 px-6 sm:px-10 md:px-20 py-8 md:py-12 flex justify-between items-center pointer-events-none"
     >
       <div className="flex items-center gap-4 flex-1 pointer-events-auto">
-        <MagneticButton>
+        <MagneticButton onMouseEnter={onHover}>
           <motion.div 
             layoutId="logo-ae"
             className="text-xl md:text-2xl font-bold tracking-tight text-[#101010]"
@@ -38,7 +42,7 @@ export const Navbar: React.FC = () => {
 
       <div className="flex gap-6 sm:gap-8 md:gap-12 pointer-events-auto">
         {navItems.map((item) => (
-          <MagneticButton key={item}>
+          <MagneticButton key={item} onMouseEnter={onHover}>
             <motion.div 
               className="relative overflow-hidden cursor-pointer"
               initial="initial"
