@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 interface MagneticButtonProps {
   children: React.ReactNode;
   className?: string;
-  onClick?: () => void;
+  /* Fix: Update onClick signature to accept React.MouseEvent to support handlers that require the event object (e.g., for stopPropagation in App.tsx) */
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export const MagneticButton: React.FC<MagneticButtonProps> = ({ children, className, onClick }) => {
