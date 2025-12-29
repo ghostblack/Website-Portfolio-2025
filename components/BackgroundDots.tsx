@@ -2,10 +2,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, useSpring, useMotionValue } from 'framer-motion';
 
-const Dot = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) => {
+interface DotProps {
+  mouseX: any;
+  mouseY: any;
+}
+
+const Dot: React.FC<DotProps> = ({ mouseX, mouseY }) => {
   const ref = useRef<HTMLDivElement>(null);
-  
-  // High-performance spring for organic movement
   const x = useSpring(0, { stiffness: 180, damping: 25 });
   const y = useSpring(0, { stiffness: 180, damping: 25 });
   const scale = useSpring(1, { stiffness: 200, damping: 20 });
@@ -21,10 +24,9 @@ const Dot = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) => {
       const dy = mouseY.get() - centerY;
       const distance = Math.sqrt(dx * dx + dy * dy);
       
-      const radius = 100; // Slightly smaller interaction radius for subtler effect
+      const radius = 100;
 
       if (distance < radius) {
-        // Calculate repel force
         const force = (radius - distance) / radius;
         const repelX = (dx / distance) * -30 * force;
         const repelY = (dy / distance) * -30 * force;
@@ -53,7 +55,7 @@ const Dot = ({ mouseX, mouseY }: { mouseX: any, mouseY: any }) => {
       <motion.div
         ref={ref}
         style={{ x, y, scale }}
-        className="w-[2px] h-[2px] bg-[#101010] rounded-full opacity-40"
+        className="w-[2.5px] h-[2.5px] bg-current rounded-full opacity-60"
       />
     </div>
   );
@@ -68,7 +70,6 @@ export const BackgroundDots: React.FC = () => {
     const handleResize = () => {
       const isMobile = window.innerWidth < 768;
       if (isMobile) {
-        // Fewer dots on mobile to increase spacing and prevent "line" look
         setGridSize({ cols: 12, rows: 22 });
       } else {
         setGridSize({ cols: 28, rows: 16 });
@@ -95,7 +96,7 @@ export const BackgroundDots: React.FC = () => {
   return (
     <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
       <div 
-        className="grid w-full h-full opacity-[0.12] px-6 py-10 md:px-10 md:py-10"
+        className="grid w-full h-full opacity-[0.22] px-6 py-10 md:px-10 md:py-10"
         style={{ 
           gridTemplateColumns: `repeat(${gridSize.cols}, 1fr)`,
           gridTemplateRows: `repeat(${gridSize.rows}, 1fr)`
